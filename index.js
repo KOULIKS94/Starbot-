@@ -2,7 +2,15 @@ const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysocket
 const fs = require('fs');
 const path = require('path');
 
-const pairingFile = path.join(__dirname, 'data/pairing.json');
+const antiLinkFile = path.join(__dirname, 'data/antilink.json');
+
+// Load AntiLink settings
+const loadAntiLink = () => {
+    if (!fs.existsSync(antiLinkFile)) {
+        fs.writeFileSync(antiLinkFile, JSON.stringify({}), 'utf8');
+    }
+    return JSON.parse(fs.readFileSync(antiLinkFile, 'utf8'));
+};
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -24,15 +32,26 @@ async function startBot() {
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
         console.log(`📩 Message from ${sender}: ${text}`);
 
-        // Load pairing data
-        let pairingData = {};
-        if (fs.existsSync(pairingFile)) {
-            pairingData = JSON.parse(fs.readFileSync(pairingFile));
+        const isGroup = sender.endsWith("@g.us");
+        let groupMetadata = null;
+
+        if (isGroup) {
+            groupMetadata = await sock.groupMetadata(sender);
         }
 
-        // If the user is not verified, allow only "pair" and "verify" commands
-        if (!pairingData[sender]?.verified && text !== "pair" && !text.startsWith("verify")) {
-            await sock.sendMessage(sender, { text: "🔒 You need to pair first! Send *pair* to generate a code." });
+        // Load Anti-Link settings
+        const antiLinkSettings = loadAntiLink();
+        const isAntiLinkEnabled = isGroup && antiLinkSettings[groupMetadata.id];
+
+        // Check if message contains a link
+        if (isAntiLinkEnabled && text.match(/(https?:\/\/[^\s]+)/gi)) {
+            await sock.sendMessage(sender, {
+                text: `🚨 *Anti-Link Warning!* 🚨\nLinks are not allowed in this group!\n🚫 Message will be deleted.`,
+            });
+
+            // Delete message
+            await sock.sendMessage(sender, { delete: msg.key });
+
             return;
         }
 
@@ -40,7 +59,7 @@ async function startBot() {
         const commandFile = path.join(__dirname, 'commands', `${text.split(' ')[0].toLowerCase()}.js`);
         if (fs.existsSync(commandFile)) {
             const command = require(commandFile);
-            command(sock, sender, text);
+            command(sock, sender, text, groupMetadata);
         }
     });
 }
