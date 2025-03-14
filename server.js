@@ -1,16 +1,16 @@
-const express = require("render");
-const startBot = require("./index");
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 
-const app = render();
+const app = express();
+app.use(express.static("web"));
 
-app.get("/", (req, res) => {
-    res.send("WhatsApp Bot is Running! 🚀");
+app.get("/pairing-code", (req, res) => {
+    const data = fs.readFileSync("./web/pairing_code.json", "utf8");
+    res.json(JSON.parse(data));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🌍 Server running on port ${PORT}`);
+    console.log(`🌍 Website running at: http://localhost:${PORT}`);
 });
-
-// Start the bot
-startBot();
