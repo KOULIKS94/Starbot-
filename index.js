@@ -1,5 +1,13 @@
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
-const menu = require('./commands/menu');
+const fs = require('fs');
+
+const sessionFile = "./session_data.json"; 
+let sessions = {}; // Stores active session IDs
+
+// Load existing session data (if available)
+if (fs.existsSync(sessionFile)) {
+    sessions = JSON.parse(fs.readFileSync(sessionFile));
+}
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -13,12 +21,23 @@ async function startBot() {
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
         const sender = msg.key.remoteJid;
 
-        if (text.startsWith('!menu')) {
-            await menu(sock, msg);
+        if (text.startsWith('!session')) {
+            const sessionID = generateSessionID(sender);
+            await sock.sendMessage(sender, { text: `🆔 *Your Session ID:* ${sessionID}\n\nUse this ID to track your session.` }, { quoted: msg });
         }
     });
 
     console.log("✅ Bot is online!");
+}
+
+function generateSessionID(user) {
+    if (!sessions[user]) {
+        const sessionID = `SID-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+        sessions[user] = sessionID;
+        fs.writeFileSync(sessionFile, JSON.stringify(sessions, null, 2)); // Save session data
+        console.log(`✅ New Session ID for ${user}: ${sessionID}`);
+    }
+    return sessions[user];
 }
 
 startBot();
