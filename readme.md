@@ -1,18 +1,17 @@
-# MyWhatsAppBot  
-A simple WhatsApp bot using Baileys.
+# MyWhatsAppBot 🚀
 
-## 📌 Features  
-✅ Responds to messages  
-✅ Supports custom commands  
-✅ Easy configuration  
+A **WhatsApp Bot** using **Baileys** to manage groups, send stickers, and more.
 
-## 🚀 Setup  
-1. Install Node.js  
-2. Run: `npm install`  
-3. Start the bot: `node index.js`  
-4. Scan the QR code  
+## 📌 Features
+✅ **Group management (add/remove members, mute/unmute, antilink)**  
+✅ **Sticker maker (image & video to sticker)**  
+✅ **Pairing code system (no QR code needed)**  
 
-## 📜 Commands  
-- **ping** → Replies with "Pong!"  
-- **help** → Shows available commands  
-- **menu** → Displays the menu
+---
+
+## 🔧 Installation
+
+1. **Clone this repository**:
+   ```sh
+   git clone https://github.com/your-repo/MyWhatsAppBot.git
+   cd MyWhatsAppBot
