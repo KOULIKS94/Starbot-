@@ -4,7 +4,7 @@ const fs = require('fs');
 const sessionFile = "./session_data.json"; 
 let sessions = {}; // Stores active session IDs
 
-// Load existing session data (if available)
+// Load existing session data if available
 if (fs.existsSync(sessionFile)) {
     sessions = JSON.parse(fs.readFileSync(sessionFile));
 }
@@ -33,11 +33,11 @@ async function startBot() {
 function generateSessionID(user) {
     if (!sessions[user]) {
         const sessionID = `SID-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-        sessions[user] = sessionID;
-        fs.writeFileSync(sessionFile, JSON.stringify(sessions, null, 2)); // Save session data
+        sessions[user] = { id: sessionID, createdAt: Date.now() };
+        fs.writeFileSync(sessionFile, JSON.stringify(sessions, null, 2));
         console.log(`✅ New Session ID for ${user}: ${sessionID}`);
     }
-    return sessions[user];
+    return sessions[user].id;
 }
 
 startBot();
