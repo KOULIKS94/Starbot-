@@ -1,0 +1,15 @@
+MyWhatsAppBot/
+│── auth_info/        # Stores authentication files (generated after login)
+│── commands/         # Folder for bot commands
+│   │── menu.js       # Menu command
+│   │── ping.js       # Ping command
+│   │── help.js       # Help command
+│   │── pair.js       # Pairing code generation
+│── data/             # Stores pairing codes
+│   │── pairing.json  # Stores generated pairing codes
+│── node_modules/     # Installed dependencies (auto-generated)
+│── config.js         # Configuration file (bot settings)
+│── index.js          # Main bot script
+│── package.json      # Project metadata
+│── package-lock.json # Dependencies lock file
+│── README.md         # Bot documentation
