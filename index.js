@@ -1,26 +1,24 @@
-const { default: makeWASocket, useMultiFileAuthState, generateRegistrationCode } = require('@whiskeysockets/baileys');
-const fs = require('fs');
+const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const menu = require('./commands/menu');
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
     const sock = makeWASocket({ auth: state });
 
     sock.ev.on('creds.update', saveCreds);
-    sock.ev.on('connection.update', async ({ connection }) => {
-        if (connection === 'open') {
-            console.log('✅ Bot is online!');
-        } else if (connection === 'close') {
-            console.log('❌ Reconnecting...');
-            startBot();
+    sock.ev.on('messages.upsert', async (m) => {
+        const msg = m.messages[0];
+        if (!msg.message || msg.key.fromMe) return;
+
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+        const sender = msg.key.remoteJid;
+
+        if (text.startsWith('!menu')) {
+            await menu(sock, msg);
         }
     });
 
-    // Generate pairing code and save it
-    const pairingCode = await generateRegistrationCode(sock);
-    console.log(`🔗 Pairing Code: ${pairingCode}`);
-    fs.writeFileSync("./web/pairing_code.json", JSON.stringify({ code: pairingCode }));
-
-    return pairingCode;
+    console.log("✅ Bot is online!");
 }
 
 startBot();
