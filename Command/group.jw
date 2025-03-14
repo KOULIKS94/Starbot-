@@ -1,0 +1,41 @@
+module.exports = async (sock, sender, text, groupMetadata) => {
+    const command = text.split(' ')[1]; // Extract sub-command
+    const mentioned = text.match(/@(\d+)/g); // Extract mentioned numbers
+
+    if (!groupMetadata) {
+        await sock.sendMessage(sender, { text: "❌ This command works only in groups!" });
+        return;
+    }
+
+    if (command === "info") {
+        // Get group details
+        await sock.sendMessage(sender, {
+            text: `📌 *Group Info*\n\n🆔 ID: ${groupMetadata.id}\n👥 Members: ${groupMetadata.participants.length}\n🔒 Privacy: ${groupMetadata.announce ? "Closed" : "Open"}`,
+        });
+
+    } else if (command === "add" && mentioned) {
+        // Add members
+        const numbers = mentioned.map(n => n.replace("@", "") + "@s.whatsapp.net");
+        await sock.groupParticipantsUpdate(groupMetadata.id, numbers, "add");
+        await sock.sendMessage(sender, { text: "✅ Members added successfully!" });
+
+    } else if (command === "remove" && mentioned) {
+        // Remove members
+        const numbers = mentioned.map(n => n.replace("@", "") + "@s.whatsapp.net");
+        await sock.groupParticipantsUpdate(groupMetadata.id, numbers, "remove");
+        await sock.sendMessage(sender, { text: "✅ Members removed!" });
+
+    } else if (command === "mute") {
+        // Mute group (only admins)
+        await sock.groupSettingUpdate(groupMetadata.id, "announcement");
+        await sock.sendMessage(sender, { text: "🔇 Group muted!" });
+
+    } else if (command === "unmute") {
+        // Unmute group
+        await sock.groupSettingUpdate(groupMetadata.id, "not_announcement");
+        await sock.sendMessage(sender, { text: "🔊 Group unmuted!" });
+
+    } else {
+        await sock.sendMessage(sender, { text: "⚠️ Invalid command! Use:\n- group info\n- group add @user\n- group remove @user\n- group mute/unmute" });
+    }
+};
