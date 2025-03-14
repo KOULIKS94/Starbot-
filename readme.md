@@ -21,14 +21,6 @@ A **WhatsApp Bot** using **Baileys** to manage groups, send stickers, and more.
 ---
 
 
-git init
-git add
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-git push -u origin main
-
-
 
 ### ✅ **What’s New?**
 - **Pairing Code** system (No need for QR scanning)
