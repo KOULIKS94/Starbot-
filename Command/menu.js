@@ -1,5 +1,5 @@
 const menuText = `
-*🌟 Lyfe Bot - WhatsApp Bot Menu 🌟*
+*🌟 Star Bot - WhatsApp Bot Menu 🌟*
 
 📌 *General Commands:*
 - 🎭 *!sticker* - Create a sticker from an image or video
